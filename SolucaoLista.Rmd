@@ -65,3 +65,55 @@ print(define_classe(k,x,D))
 
 
 ## Exercício 04
+
+```{r}
+library(tidyverse)
+
+#Copiando a função do exercício anterior para usar aqui
+define_especie <- function(k,x,D){
+  D2 <- D %>%
+  mutate( dist = (x[1] - x_1)^2 + (x[2] - x_2)^2 ) %>%
+  arrange( dist ) %>% head(k) %>% count(y)
+  
+  ultimo_elemento <- D2 %>%
+    arrange(desc(n)) %>%
+    slice(1) %>%
+    pull(y)  # Pega o valor da coluna 'y' da primeira linha
+  
+  return(ultimo_elemento)
+}
+
+#Pegando o banco de dado iris
+data("iris") # Carrega o banco no ambiente global
+iris <- as_tibble(iris) %>% # Converte para a dataframe tibble
+select(Petal.Length,Sepal.Length,Species) %>% # Seleciona colunas da dataframe
+rename( x_1 = Petal.Length, x_2 = Sepal.Length, y = Species) # Renomeia as colunas
+
+#Para verificar se o algorítimo classifica bem os pontos, eu vou dividir os dados em 90%
+#para teste e 10% para testarmos (Pois já devemos saber o resultado correto, então não
+#podemos escolher um ponto novo e aleatório)
+set.seed(42)
+indices <- sample(1:nrow(iris), size = 0.9 * nrow(iris))
+treino <- iris[indices, ]
+teste <- iris[-indices, ]
+
+list_test <- as.data.frame(teste)
+
+#Aqui eu vou analisar k = 1 até k = 15
+for(k in 1:15){
+  acertos = 0
+  total = nrow(list_test)
+
+  for(i in 1:total) {
+    ponto_test <- list_test[i,]  # Pega a linha i de list_test
+    result <- define_especie(k, c(ponto_test$x_1, ponto_test$x_2), treino)
+    #print(paste("Resultado esperado: ", ponto_test[[3]]))
+    #print(paste("Resultado do metodo: ", result))
+    if (ponto_test$y == result){
+      acertos <- acertos + 1
+    }
+  }
+  print(paste("Percentual de acertos com k =", k, ": ", ... = (acertos/total)*100, "%"))
+  }
+```
+
